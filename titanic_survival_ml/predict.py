@@ -6,6 +6,6 @@ def get_model(path_to_joblib):
 
 def make_prediction(X_new):
     model = get_model('model.joblib')
-    prediction = model.predict(X_new)
-    survival_probability = model.predict_proba(X_new)[1]
+    prediction = model.predict(X_new)[0]
+    survival_probability = model.predict_proba(X_new)[0][1]
     return prediction, survival_probability

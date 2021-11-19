@@ -4,7 +4,7 @@ from sklearn.impute import SimpleImputer
 
 def get_data():
     df = pd.read_csv("raw_data/train.csv")
-    df["Title"] = df["Name"].apply(lambda x: x.split(",")[1].split(".")[0])
+    df["Title"] = df["Name"].apply(lambda x: x.split(",")[1].split(".")[0].strip())
     df["Family"] = df["SibSp"] + df["Parch"]
     return df
 
