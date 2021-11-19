@@ -36,8 +36,8 @@ class Trainer():
         self.set_pipeline()
         self.pipeline.fit(X_train, y_train)
         
-    def evaluate(self, X_test, y_test):
-        accuracy = self.pipeline.score(X_test, y_test)
+    def evaluate(self):
+        accuracy = self.pipeline.score(self.X_test, self.y_test)
         print("accuracy: ", accuracy)
         return accuracy
     
@@ -45,8 +45,6 @@ class Trainer():
         joblib.dump(self.pipeline, 'model.joblib')
         print(colored("model.joblib saved locally", "green"))
         
-    
-    
 if __name__ == "__main__":
     df = get_data()
     df = impute_missing_values(df)

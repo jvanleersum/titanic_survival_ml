@@ -56,7 +56,7 @@ pypi:
 
 ##### Package params  - - - - - - - - - - - - - - - - - - -
 
-PACKAGE_NAME=TitanicPredictor
+PACKAGE_NAME=titanic_survival_ml
 FILENAME=trainer
 
 ##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
