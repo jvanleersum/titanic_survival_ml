@@ -53,3 +53,13 @@ pypi_test:
 
 pypi:
 	@twine upload dist/* -u $(PYPI_USERNAME)
+
+##### Package params  - - - - - - - - - - - - - - - - - - -
+
+PACKAGE_NAME=TitanicPredictor
+FILENAME=trainer
+
+##### Job - - - - - - - - - - - - - - - - - - - - - - - - -
+
+run_locally:
+	@python -m ${PACKAGE_NAME}.${FILENAME}
