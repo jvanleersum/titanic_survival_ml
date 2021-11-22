@@ -1,35 +1,47 @@
-from titanic_survival_ml.data import get_data, impute_missing_values, set_X_y
-from sklearn.model_selection import train_test_split
-from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import MinMaxScaler, OneHotEncoder, RobustScaler
+from titanic_survival_ml.data import get_train_data, impute_missing_values, set_X_y, get_test_data
+from titanic_survival_ml.predict import create_kaggle_submission
+from sklearn.compose import ColumnTransformer, make_column_selector
+from sklearn.preprocessing import MinMaxScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.impute import SimpleImputer
 import joblib
 from termcolor import colored
 
 class Trainer():
-    def __init__(self, X_train, X_test, y_train, y_test):
+    def __init__(self, X_train, y_train):
         self.X_train = X_train
-        self.X_test = X_test
+        # self.X_test = X_test
         self.y_train = y_train
-        self.y_test = y_test
+        # self.y_test = y_test
         
         
     def set_pipeline(self):
-        preproc = ColumnTransformer(
+        num_transformer = Pipeline(
             [
-        ("min_max", MinMaxScaler(), ["SibSp", "Parch", "Family"]),
-        ("robust", RobustScaler(), ["Age", "Fare"]),
-        ("ohe", OneHotEncoder(handle_unknown="ignore", sparse=False), ["Pclass", "Sex", "Embarked", "Title"])
+                ("imputer", SimpleImputer(strategy="mean")),
+                ("min_max", MinMaxScaler())
             ]
         )
-
+        cat_transformer = Pipeline(
+            [
+                ("imputer", SimpleImputer(missing_values = None, strategy="most_frequent")),
+                ("ohe", OneHotEncoder(handle_unknown="ignore"))
+            ]
+        )
+        preproc = ColumnTransformer(
+            [
+                ("num_transformer", num_transformer, make_column_selector(dtype_include=["int64", "float64"])),
+                ("cat_transformer", cat_transformer, make_column_selector(dtype_include=["object", "bool"]))
+            ]
+        )
         self.pipeline = Pipeline(
             [
                 ("preproc", preproc),
-                ("forest", RandomForestClassifier(n_estimators=200, max_depth=5))
+                ("forest", RandomForestClassifier(n_estimators=200, max_depth=4))
             ]
         )
+
         return self.pipeline
     
     def run(self):
@@ -43,15 +55,14 @@ class Trainer():
     
     def save_model_locally(self):
         joblib.dump(self.pipeline, 'model.joblib')
-        print(colored("model.joblib saved locally", "green"))
+        print(colored("model_joblib saved locally", "green"))
         
 if __name__ == "__main__":
-    df = get_data()
-    df = impute_missing_values(df)
-    X, y = set_X_y(df)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-    trainer = Trainer(X_train, X_test, y_train, y_test)
+    df_train = get_train_data()
+    df_test = get_test_data()
+    df_train = impute_missing_values(df_train)
+    X_train, y_train = set_X_y(df_train)
+    trainer = Trainer(X_train, y_train)
     trainer.run()
-    trainer.evaluate()
     trainer.save_model_locally()    
-    
+    create_kaggle_submission()
